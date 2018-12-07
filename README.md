@@ -1,16 +1,10 @@
-# Game Of Stones
+# Fortress Engine
 
-More info: [alexsaalberg.com/gos.html](https://alexsaalberg.com/gos.html)
-
-![Screenshot showing overview of features in Game of Stones](media/screen1.png)
+![Screenshot showing overview of features in Fortress Engine](media/screen1.png)
 
 ## Description
 
-Game of Stones was my senior project. It was created in a little under 10 weeks. 
-
-It was meant to be an exploration into the type of speciality controls that might be needed to make a fully-3D "Colony Simulator" type game. (Imagine [Rimworld](https://rimworldgame.com/) rendered in Minecraft). 
-
-Most of the time was spent simply making the rendering engine, but some basic controllable 'colonists' npcs were added as well as some interesting 3D voxel building controls
+Fortress Engine is a game engine meant to create "Voxel" and "Colony Simulation" games.
 
 ## Technologies
 
@@ -18,7 +12,8 @@ Language - C++
 
 Source Control - Git
 
-Building - CMake1
+Building - CMake
+
 ### Libraries
 
 #### [Polyvox](http://www.volumesoffun.com/polyvox-about/)
@@ -84,7 +79,7 @@ While peeking into the src/ folder may lead you to believe this project has no s
 
 ### Background Info
 
-Game of Stones uses the [ECS Programming Pattern](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system) to define it's game objects. This pattern favors "composition over inheritence" and is generally used to combat the problems that game engines can have of using traditional object inheritance to define hundreds of different game objects with overlapping, but slightly differing, properties.
+Fortress Engine of  uses the [ECS Programming Pattern](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system) to define it's game objects. This pattern favors "composition over inheritence" and is generally used to combat the problems that game engines can have of using traditional object inheritance to define hundreds of different game objects with overlapping, but slightly differing, properties.
 
 ECS is used in game engines both because of the possible performance benefits due to better [data locality](http://gameprogrammingpatterns.com/data-locality.html), and because it can make a game engine simpler and more managable in a surprising number of ways.
 
