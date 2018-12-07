@@ -18,7 +18,6 @@ void Application::init(double t, const std::string& resourceDirectory) {
     //Bullet
     initBullet();
     
-    
     //Systems
     event_handler = make_shared<EventHandler>();
     
@@ -69,7 +68,6 @@ void Application::initBullet() {
     bullet_dynamics_world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     bullet_dynamics_world->setGravity(btVector3(0, -16, 0));
  
-    
     //Init debug draw
     bullet_draw = new BulletDraw();
     bullet_draw->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
@@ -205,18 +203,7 @@ void Application::initGeom(const std::string& resourceDirectory) {
         sphereModel = make_shared<Model>();
         sphereModel->createModel(TOshapes, objMaterials);
     }
-    rc = tinyobj::LoadObj(TOshapes, objMaterials, errStr,
-                          (resourceDirectory + "/Helicopter.obj").c_str());
-    if (!rc)
-    {
-        cerr << errStr << endl;
-    } else {
-        helicopterModel = make_shared<Model>();
-        helicopterModel->createModel(TOshapes, objMaterials);
-        helicopterModel->rotate( vec3(0.0f, 0.0f, 0.0f) );
-        helicopterModel->scale *= 2.0f;
-    }
-    
+ 
     rc = tinyobj::LoadObj(TOshapes, objMaterials, errStr,
                             (resourceDirectory + "/cube.obj").c_str());
     if (!rc)

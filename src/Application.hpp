@@ -89,7 +89,6 @@ public:
     std::shared_ptr<Model> temporaryModel;
     std::shared_ptr<Model> sphereModel;
     std::shared_ptr<Model> cubeModel;
-    std::shared_ptr<Model> helicopterModel;
     
     //Window
     WindowManager* window_manager;
