@@ -2,9 +2,10 @@
 
 This is just to keep track of possible things to do in the future, none of these are necessarily "planned features" (despite the file name).
 
-*** File modifications
+*** Enhancements
 - Remove old commented-out code
 - Change names of project in files or remove headers/footers entirely
+- Some type of GUI?
 
 *** Project Structure
 - Files are all in one /src folder rn
@@ -16,7 +17,7 @@ This is just to keep track of possible things to do in the future, none of these
   - (Or don't because some are like, hundreds of megabytes)
     - Could use LFS for that I guess
 
-*** Project 
+*** Project Management
 - TravisCI or something?
 - Tests?
 
