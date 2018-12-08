@@ -1,25 +1,26 @@
-#target_sources was added in 3.1
+# target_sources was added in 3.1
 cmake_minimum_required(VERSION 3.1)
 
-#Functions and Macros
+# Functions and Macros
 include("Helpers.cmake")
 
 # Name of the project
 project(FortressEngine)
 
-#glfw.dylib is in usr/local/lib
-#If absent, "ld: library not found for -lglfw"
+# glfw.dylib is in usr/local/lib
+# If absent, "ld: library not found for -lglfw"
 link_directories("/usr/local/lib")
 
-#Set the executable. 
-#Sources are set via target_sources in add_subdirectorie(s)
+# Set the executable. 
+# Sources are set via target_sources in add_subdirectorie(s)
 add_executable(${CMAKE_PROJECT_NAME} "") 
 
+# Run the code in these CMake files
 include("src/CMakeLists.txt")
 include("ext/CMakeLists.txt")
 include("resources/CMakeLists.txt")
 
-#Libraries (could probably add to sub_directory CMakeLists.txt(s))
+# Libraries (could probably add to sub_directory CMakeLists.txt(s))
 
 # Add GLFW
 # Get the GLFW environment variable.
@@ -117,7 +118,7 @@ else()
 		# Add required frameworks for GLFW.
 		target_link_libraries(${CMAKE_PROJECT_NAME} "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
 	else()
-		#Link the Linux OpenGL library
+		# Link the Linux OpenGL library
 		target_link_libraries(${CMAKE_PROJECT_NAME} "GL" "dl")
 	endif()
 endif()
