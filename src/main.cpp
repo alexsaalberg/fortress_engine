@@ -103,6 +103,22 @@ int main(int argc, char **argv)
         
         // Swap front and back buffers.
         glfwSwapBuffers(windowManager->getHandle());
+        
+        
+        #ifdef __APPLE__
+        static bool windowHasMoved = false;
+        
+        if( !windowHasMoved) {
+            int windowX;
+            int windowY;
+            GLFWwindow* window = windowManager->getHandle();
+            
+            glfwGetWindowPos(window, &windowX, &windowY);
+            glfwSetWindowPos(window, windowX, windowY-1);
+            
+            windowHasMoved = true;
+        }
+        #endif
     }
     
     // Quit program.
