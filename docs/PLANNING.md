@@ -6,6 +6,13 @@ This is just to keep track of possible things to do in the future, none of these
 - Remove old commented-out code
 - Change names of project in files or remove headers/footers entirely
 - Some type of GUI?
+- Debugging!
+  - I'm currently having trouble making sense of rotations
+  - Would be useful to have debug visualizations for entities
+  - Show variables in their components, visualize the ones that make sense
+  - Use IMGUI for debug GUIs
+  - Edit their variables directly???
+  	- This is like on-the-way-to an actual Game Engine I suppose
 
 *** Project Structure
 - Files are all in one /src folder rn
