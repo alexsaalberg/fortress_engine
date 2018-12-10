@@ -12,4 +12,4 @@ debug_print_sourcevar("IMGUI_FILES")
 target_sources(${CMAKE_PROJECT_NAME} PUBLIC ${IMGUI_FILES})
 
 #Add files into an IDE folder
-source_group("ext" FILES ${IMGUI_FILES})
+source_group("ext\\imgui" FILES ${IMGUI_FILES})
