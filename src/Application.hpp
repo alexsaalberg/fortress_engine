@@ -10,7 +10,7 @@
 
 //Bullet Physics
 #include <btBulletDynamicsCommon.h>
-#include <btTriangleIndexVertexArray.h>
+#include <BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h>
 
 //Messaging System
 #include "Messaging.hpp"

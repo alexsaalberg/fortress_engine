@@ -11,7 +11,7 @@
 #include <memory> //shared_ptr
 
 #include <glm/gtc/type_ptr.hpp> //glm stuff (vec3, quat)
-#include <btRigidBody.h>
+#include <BulletDynamics/Dynamics/btRigidBody.h>
 
 #include "Model.hpp"
 #include "PolyVox/PagedVolume.h"

@@ -5,8 +5,8 @@
 //  Created by Alex Saalberg on 1/25/18.
 //
 
-#include <btBoxShape.h>
-#include <btSphereShape.h>
+#include <BulletCollision/CollisionShapes/btBoxShape.h>
+#include <BulletCollision/CollisionShapes/btSphereShape.h>
 
 #include "Application.hpp"
 

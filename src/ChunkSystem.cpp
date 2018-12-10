@@ -4,7 +4,7 @@
 //
 //  Created by Alex Saalberg on 4/16/18.
 //
-#include <btTriangleMesh.h>
+#include <BulletCollision/CollisionShapes/btTriangleMesh.h>
 
 #include "ChunkSystem.hpp"
 

@@ -7,7 +7,7 @@
 #include "PolyVox/Picking.h"
 #include "PolyVox/AStarPathfinder.h"
 
-#include <btVector3.h>
+#include <LinearMath/btVector3.h>
 
 #include "PlayerSystem.hpp"
 #include "InputSystem.hpp"

@@ -16,13 +16,13 @@
 #include <set>
 
 //Bullet Physics
-#include <btBvhTriangleMeshShape.h>
-#include <btTriangleIndexVertexArray.h>
-#include <btTriangleIndexVertexMaterialArray.h>
-#include <btDiscreteDynamicsWorld.h>
-#include <btStridingMeshInterface.h>
-#include <btDefaultMotionState.h>
-#include <btRigidBody.h>
+#include <BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
+#include <BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h>
+#include <BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.h>
+#include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
+#include <BulletCollision/CollisionShapes/btStridingMeshInterface.h>
+#include <LinearMath/btDefaultMotionState.h>
+#include <BulletDynamics/Dynamics/btRigidBody.h>
 
 //PolyVox
 #include "PolyVox/Region.h"

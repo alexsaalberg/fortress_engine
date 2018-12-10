@@ -8,7 +8,7 @@
 #ifndef BulletDraw_hpp
 #define BulletDraw_hpp
 
-#include <btIDebugDraw.h>
+#include <LinearMath/btIDebugDraw.h>
 #include <vector>
 #include <memory>
 #include "Program.hpp"

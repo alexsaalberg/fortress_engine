@@ -8,7 +8,7 @@
 #ifndef PlayerSystem_hpp
 #define PlayerSystem_hpp
 
-#include <btRigidBody.h>
+#include <BulletDynamics/Dynamics/btRigidBody.h>
 
 #include "PolyVox/Vector.h"
 
