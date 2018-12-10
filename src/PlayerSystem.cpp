@@ -373,20 +373,54 @@ void PlayerSystem::moveCameraWithMouse(double t, double dt) {
     vec3 relative_x_axis = position->rotation * (vec3(1.0f, 0.0f, 0.0f));
     vec3 relative_y_axis = (vec3(0.0f, 1.0f, 0.0f));
     
-    //Move camera
-    float scroll_degree_ratio = 8.0f;
+    float scroll_degree_ratio = 8.0f; // 8 degrees per 1.0f of mouse movement
     
+    // Calculate mouse movement using input_system
     float deltaX = input_system->getCurrentControlValue("mouse_x") - input_system->getPreviousControlValue("mouse_x");
     float deltaY = input_system->getCurrentControlValue("mouse_y") - input_system->getPreviousControlValue("mouse_y");
     float x_radians = radians(scroll_degree_ratio * deltaX);
     float y_radians = radians(scroll_degree_ratio * deltaY);
     
+    // the camera's 'x rotation' (looking left and right) is around the Y axis
     glm::quat deltaRotationX = glm::angleAxis(1.0f * -x_radians, relative_y_axis);
+    // the camera's 'y rotation' (looking up and down) is around the X axis
     glm::quat deltaRotationY = glm::angleAxis(1.0f * -y_radians, relative_x_axis);
     
+    float potentialVerticalRotation = getQuatDegreeRotationAroundX(deltaRotationY);
+    potentialVerticalRotation = degrees(y_radians);
+    float curVerticalRotation = getQuatDegreeRotationAroundX(position->rotation);
+    float totalPotentialRotation = potentialVerticalRotation + curVerticalRotation;
+    const float maxVertical = 70.0f;
+    
+    float counterRotationDegrees = 0.0f;
+    
+    if(totalPotentialRotation < -maxVertical) {
+        float counterRotation = -maxVertical - totalPotentialRotation; // positive number
+        counterRotationDegrees =  -maxVertical - totalPotentialRotation; // positive number
+        //printf("1  %f %f %f %f\n", potentialVerticalRotation, curVerticalRotation, totalPotentialRotation, counterRotation);
+    }
+    if(totalPotentialRotation > maxVertical) {
+        float counterRotation = maxVertical - totalPotentialRotation; // negative number
+        counterRotationDegrees = maxVertical - totalPotentialRotation; // negative number
+        //printf("2  %f %f %f %f\n", potentialVerticalRotation, curVerticalRotation, totalPotentialRotation, counterRotation);
+    }
+    // Rotate camera based upon mouse movement
+    printf("Other: %f %f\n", getQuatDegreeRotationAroundX(deltaRotationY), getQuatDegreeRotationAroundX(deltaRotationX));
     position->rotation = deltaRotationY * deltaRotationX * position->rotation;
+    printf("Normal Final: %f\n", getQuatDegreeRotationAroundX(position->rotation));
+    //printQuatRotationAsAngles(position->rotation); printf("\n");
+    // Limit camera vertical rotation to 180 degrees
     
+    if(counterRotationDegrees != 0.0f) {
+        relative_x_axis = position->rotation * (vec3(1.0f, 0.0f, 0.0f));
+        glm::quat counterRotationQuat = glm::angleAxis(1.0f * -radians(counterRotationDegrees), relative_x_axis);
+        position->rotation = counterRotationQuat * position->rotation;
+        printf("R: %f %f D: %f %f\n", x_radians, y_radians, degrees(x_radians), degrees(y_radians));
+        printf("Corrected Final: %f\n", getQuatDegreeRotationAroundX(position->rotation));
+    }
     
+    // Move "highlight cube" to it's new location
+    // (The wireframe box that highlights which voxel the cursor is hovering over).
     Vector3DInt32 break_block_point = polyVoxPickScreen(0.0f, 0.0f, false); //exact middle of screen
     Position_Component* cursor_position = entity_manager->get_component<Position_Component>(cursor_id);
     glm::vec3 new_cursor_position = vec3((float)break_block_point.getX(), (float)break_block_point.getY(), (float)break_block_point.getZ());
@@ -587,7 +621,7 @@ Vector3DInt32 PlayerSystem::polyVoxPickScreen(float xpercent, float ypercent, bo
     if(result.didHit) {
         return result.hitVoxel;
     }
-    cerr << "PlayerSystem: Screen pick did not hit a voxel.\n";
+    //cerr << "PlayerSystem: Screen pick did not hit a voxel.\n";
     return result.hitVoxel;
 }
 
