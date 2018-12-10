@@ -1,66 +1,91 @@
+# Feat - cameraLimits.md
 
-## FetchContent
-So I'm trying to see if I can add Bulet Physics via [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html)
-I got the idea from [here.](https://www.reddit.com/r/cpp/comments/9284h5/dependency_management_with_cmake_and_git/e33xxh2/)
+## Trying to limit camera vertical rotation
 
-FetchContent seems to actually download and build the BulletPhysics git repo.
-From looking at the CMakeLists.txt in the /examples folder, those examples link the bullet libraries like this
-	LINK_LIBRARIES(
-		BulletDynamics
-	)
-They also include the header files via the more 'full' path 
-(e.g. `#include BulletCollision/CollisionDispatch/btCollisionObject.h`)
-I don't currently do this because I go into XCode's build settings after building and manually set the include to be recursive. (and I include with just `#include "btCollisionObject.h"`)
+### Investigating the codebase
 
-So hypothetically I could make a /fetch folder in the root, and put a CMakeLists.txt there.
-What this would do for each dependency is different, but for example bullet would be:
+I'm a bit rusty on how LinearAlgebra and the codebase works, so I investigated:
 
-Have it check for each external dependency to see if it is already installed on the system, if it is include it normally (will still have to change header paths to be more 'full'), if it is not installed do FetchContent for it and then do LINK_LIBRARIES for every library.
+The code where the camera is rotation is `PlayerSystem::moveCameraWithMouse(,)`.
 
-Which should work. But I would STILL have the problem of that if anything goes wrong in bullet code it is hard to debug. I DO want to have the full source in my project, and I want it to be debuggable.
-MAYBE there is a way to debug with source
+It achieves camera rotation by altering the variable `rotation`, of type `glm::quat`, of the player's `Position_Component`. 
 
-## Looking into debugging
-Looking into the .dylib files produced by the bullet compilation showed _some_ debug symbols (stuff like `__ZN12b3DynamicBvh7sStkCLN2Ep...`, but it wasn't very clear. Looking at the symbols in the bullet .o files within the .a library files that are installed in /usr/local/lib on my system seemed to indicate those had less symbols. (I used `dsymutil -s <file>` for this)
+RenderSystem will later call `Camera::setMVPE(,)` which will query the `EntityManager` entity_manager for the player's position component and pass it to `Camera::setViewMatrix(,)`. 
 
-However, debugging the examples that were compiled has part of bullet using Xcode _does_ allow me to step through the full source code. So I'm guessing that the .dylib files somehow reference the .cpp files for debugging (one stackoverflow answer talking about debug symbols indicated something like this was possible).
+This method will pass it to `Camera::getViewMatrix(,)` (a method which returns a `glm::mat4` suitable for our shader programs).
 
-SO, I'm gonna go forward with trying to add BulletPhysics to the engine via FetchContent and Link_Libraries and all that and HOPEFULLY that will work fine, not increase the size of the repo (another reason I'd like to not copy the source code directly in), and allow full debugging.
+`getViewMatrix()` uses `MatrixStack::lookAt(vec3 eye, vec3 target, vec3 up)`, which wraps `glm::lookAt(,,)`.
+  1. It first uses the cameras rotation to transform the point (0,0,1), the "no rotation identity", and stores the transformed point in the var `identity`
+  2. It then adds the players position `vec3` to this `vec3` called `identity`
+  3. It then calls `lookAt(position, identity, upVector)` 
+    - This results in a correct mat4 which rotates the camera.
 
-## Looking into adding bullet via FetchContent
-So bullet seems to use a bunch of deprecated CMake in their CMakeLists.txt files. (LINK_LIBRARIES, SUB_DIRS, etc.). So it's not as straightforward as simply copying their cmake in.
+### Solution Try One
 
-## Trying more to do fetchContent
-I can't really figure it out. I'm trying to pass in CMAKE_ARGS to the bulletPhysics build but it doesn't seem to be working at all.
+So it seems the `(0,0,1)` is the "default" rotation. Meaning that starting the game and turning 90degrees to the right should result in the "identity" being `(1,0,0)`. Testing this reveals it result in `(-1,0,0)`, so basically correct.
 
-I think at this point this system won't work, as I clearly don't understand it. So I'm gonna have fetchContent simply copy the bullet physics source files into /ext.
+Testing also reveals that the camera passes over the "top" or "bottom" when the X or Z in this resulting identity switches from negative to positive (depending upon which way the camera is facing), but (most importantly) when the Y approachs + or - 1.0.
 
-## Trying to include bullet/src manually
-So I got it to pretty much work by just downloading bullet via FetchContent and adding it to the project sources (versus compiling it as a library via the bullet CMake files).
-There is a small problem where some of the bullet files have unused functions/variables so they show up in the warnings. I've figured out that you can use `set_source_files_properties(<file> PROPERTIES COMPILE_FLAGS "<flags>)` to set flags for individual sources files.
-However, according to the CMake documentation for `COMPILE_FLAGS`, "Xcode does not support per-config per-source settings, so expressions that depend on the build configuration are not allowed with that generator.". So this won't work for XCode (what I'm currently using to build).
+So I should be able to test if the Y is approaching a + or - threshold (0.95 maybe) and if it is provide a counter rotation somehow.
 
-All things considered though, I think I will go down this route.
+#### Figuring out how to calculate the counterrotation.
 
-**So the new build 'track' for bullet will be **
-  1. Use FindBullet.cmake and prioritize on-system bullet if available. 
-  2. If needed, fetchContent to download bullet and add sources directly to project. 
-  3. Use -wNo-Unused on bullet source files. 
-  4. If you're using XCode you'll still have a few unused variable/function warnings from bullet.
+I should be able to calculate how much we need to rotate in the range [-1.0,1.0] and then convert this to radians (multiply by PI).
 
-Which should all be fine, not require people to manually download bullet, and let people debug through bullet source files if it is downloaded via fetchContent (and not preinstalled).
+Then I can apply this rotation to the player's camera rotation the same way I move the camera with the mouse.
 
-In the future it might be a good idea to compile Bullet into a library via it's own CMake files, but just compile from /src (not the root dir). Because as of now it says "compiling 200 files" which is a little annoying, and all bullet files are in one huge source_group in the ide.
+##### Fixing it
 
-## Building flags
-Building using -WEverything (which on Clang, what I use is apparently ACTUALLY everything) produced hundreds of warnings and errors for IMGUI and GLAD, etc.
+So that pretty much worked, but it's 'jumping' up everytime we exceed the limit, which shouldn't be happening. This means we are counter-rotating too much for how much we have exceeded the camera limits.
 
-Building using -WAll produces the same issues as before. Regardless, it might be a good idea to build libraries seperately.
+Testing more, it also doesn't seem to limit it vertically, for some reason.
 
-## Building libraries seperately
-So looking into building libraries separately. It seems ideal to have each folder in /ext download and compile one dependency and then use the files to make shared library files usable via `find_library()`
+Thinking about it, it's probably because we're converting from the range [-1,1] to [-pi,pi] when we need to do [-1,1]->[0,pi]. So we need to do (Y+1.0)/2.0 before anything. (to move [-1,1] to [0,1])
 
-They could also use their default CMakeLists.txt's (in the case of Bullet) and just install them directly on the machine so they could later be used via Find_Package().
+This doesn't work. Logically I'm beginning to understand why it doesn't make sense. Example: verticalLimit=0.8, identiy.y=0.83, deltaChange=0.03. (change+1)/2.0 = about 0.5. 0.5 change means putting the view about straight ahead, which is clearly way too much.
+It does make sense because the deltaChange=0.03 is _how much to move along that range_, so it should be converted from 0.03 out of 2.0 total to out of 1.0 total, so just 0.03 * 1/2. 
 
-I'll look into this more another time.
 
+##### Fixing it 2.0
+
+So the fix mentioned at the ned of the last section _mostly_ worked. There is still problems with the view bouncing back into the limits, but it's not as pronounced as before. There is also still (a more important) problem of the view being about to "flip" by going over the top. Both of these should be adressed by doing some calculation _before_ the mouse view movement is applied. 
+
+After some thought this is probably because we can't simply convert from [-1,1]->[0,1] -> [0, pi]. This is because our [-1,1] is the height from the X axis, and the ratio of an angle to Y is (obviously) not constant. So I think we need to use Trig to find the actual radians the camera is currently about the flat plane. 
+
+So using SOH CAH TOA, Tan(Rad)=Opposite/Adjacent. Opposite is the Y, [-1,1] we've been using here. Adjacent should be (X^2+Z^2)^1/2. So we get Adjacent then do invTan(Y/Adjacent).
+
+This pretty much worked. However, there is still jumping if the camera is moving quickly. We do need to investigate applying it before mouse view movement is...
+
+##### More fixing
+
+So clearly this shouldn't be this difficult, and I feel a bit silly. I simply don't understand what's going on with these rotations well enough. I should probably review them or something. Either way, this has motivated me to add debug visualizations to the engine (show rotations of objects and stuff).
+
+My current attempt to achieve this is 
+
+    if(xRotationDegrees < -xRotationLimit) {
+        float counterRotationDegrees = (-xRotationLimit - xRotationDegrees);
+        float counterRotationRadians = radians(counterRotationDegrees);
+        glm::quat counterRotationY = glm::angleAxis(1.0f* counterRotationRadians, relative_x_axis);
+        position->rotation = counterRotationY * position->rotation;
+    }
+
+Which works fine until you look to the left, and then it runs into problems of the EulerAngles crossing from 180to-180 and such. Also, it seems the way that quats store angles kinda 'drifts' over time, in that the Euler Angle's I'm getting out of the quat has a slowly increasing/decreasing rotation around the Z axis. 
+
+##### Actual solution
+
+What I need to do is get the camera's rotation around it's relative X axis and counterrotate if it's too extreme. So first I need to get the rotation.
+
+Rotating the no rotation identity (0,0,1) by the current camera rotation should get me a vector whose angle from the XZ plane is what we want. I should then be able to do asin(thatVec.y) to get that angle.
+
+This seems to pretty much work. I AM going to have to do some work to see if the current camera rotaiton will cross over the top or bottom of the view, because it's not possible to detect it after the fact.
+
+##### More testing
+
+So I've been working on this for a while and have done all matter of incorrect things.
+I'm going to commit this log and then overwrite it and come back to this issue at another time.
+
+My last attempt IS working. The camera is limited with no jittering. However there seem to be bugs with vertical camera movement not being straight up and down, and becoming 'bugged' (super messed up) if you spin at around at the lower limit.
+
+The not straight up and down could have been there before, I'm just noticing it now.
+
+I'm going to commit, keep this branch incomplete, and come back to the issue another time.
