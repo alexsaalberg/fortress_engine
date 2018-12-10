@@ -52,3 +52,15 @@ Which should all be fine, not require people to manually download bullet, and le
 
 In the future it might be a good idea to compile Bullet into a library via it's own CMake files, but just compile from /src (not the root dir). Because as of now it says "compiling 200 files" which is a little annoying, and all bullet files are in one huge source_group in the ide.
 
+## Building flags
+Building using -WEverything (which on Clang, what I use is apparently ACTUALLY everything) produced hundreds of warnings and errors for IMGUI and GLAD, etc.
+
+Building using -WAll produces the same issues as before. Regardless, it might be a good idea to build libraries seperately.
+
+## Building libraries seperately
+So looking into building libraries separately. It seems ideal to have each folder in /ext download and compile one dependency and then use the files to make shared library files usable via `find_library()`
+
+They could also use their default CMakeLists.txt's (in the case of Bullet) and just install them directly on the machine so they could later be used via Find_Package().
+
+I'll look into this more another time.
+
