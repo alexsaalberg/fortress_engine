@@ -14,5 +14,6 @@
 void printVec3(glm::vec3 v);
 
 void printQuatRotationAsAngles(glm::quat rotation);
+void printQuatRotationAsRadians(glm::quat rotation);
 
 #endif /* GLMUtils_h */

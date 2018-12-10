@@ -14,3 +14,7 @@ void printVec3(glm::vec3 v) {
 void printQuatRotationAsAngles(glm::quat rotation) {
     printVec3(glm::degrees(glm::eulerAngles(rotation)));
 }
+void printQuatRotationAsRadians(glm::quat rotation) {
+    printVec3(glm::eulerAngles(rotation));
+}
+
