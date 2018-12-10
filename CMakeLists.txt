@@ -1,5 +1,6 @@
 # target_sources was added in 3.1
-cmake_minimum_required(VERSION 3.1)
+# fetchContent was added in 3.11
+cmake_minimum_required(VERSION 3.11)
 
 # Functions and Macros
 include("Helpers.cmake")
@@ -17,9 +18,8 @@ add_executable(${CMAKE_PROJECT_NAME} "")
 
 # Run the code in these CMake files
 include("src/CMakeLists.txt")
-include("ext/CMakeLists.txt")
+include("ext/CMakeLists.txt") # glad, imgui
 include("resources/CMakeLists.txt")
-
 # Libraries (could probably add to sub_directory CMakeLists.txt(s))
 
 # Add GLFW
@@ -92,14 +92,20 @@ endif()
 message(STATUS "=====> END GLFW <=====")
 message(STATUS "")
 
+
 message(STATUS "=====> START BULLET <=====")
 find_package(bullet)
 if(BULLET_FOUND)
+	message(STATUS "Using pre-installed bullet")
 	message(STATUS "Bullet Library Files: ${BULLET_LIBRARIES}")
 	target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${BULLET_INCLUDE_DIRS})
 	target_link_libraries(${CMAKE_PROJECT_NAME} ${BULLET_LIBRARIES})
 	message(STATUS "FOUND BULLET YAY!")
+else()
+	message(STATUS "find_package(bullet) unsuccessful")
+	include("fetch/CMakeLists.txt")
 endif()
+
 message(STATUS "=====> END BULLET <=====")
 message(STATUS "")
 
@@ -112,7 +118,11 @@ if(WIN32)
 	target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC NOMINMAX _CRT_SECURE_NO_WARNINGS)
 else()
 	# Enable all pedantic warnings.
+	debug_print_var("CMAKE_CXX_FLAGS")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic")
+	
+	# later compile_flags have precedance
+  	set_source_files_properties(${BULLET_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "-Wno-unused -Wno-unused-variable -Wno-unused-function -w")
 
 	if(APPLE)
 		# Add required frameworks for GLFW.
