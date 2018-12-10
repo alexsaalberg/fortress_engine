@@ -15,5 +15,8 @@ void printVec3(glm::vec3 v);
 
 void printQuatRotationAsAngles(glm::quat rotation);
 void printQuatRotationAsRadians(glm::quat rotation);
+float getQuatDegreeRotationAroundX(glm::quat rotation);
+glm::vec3 getRotatedNoRotationIdentity(glm::quat rotation);
+
 
 #endif /* GLMUtils_h */
