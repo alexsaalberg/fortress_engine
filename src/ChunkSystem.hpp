@@ -114,6 +114,19 @@ public:
         }
     }
 };
+class FortressContributeToAO {
+public:
+    bool operator()(CASTLE_VOXELTYPE voxeltype)
+    {
+        if(voxeltype == 0) {
+            return false;
+        }
+        if(voxeltype == BLOCK_REDOUTLINE) {
+            return true;
+        }
+        return true;
+    }
+};
 /*
 template <typename VoxelType>
 class CastleIsQuadNeeded {

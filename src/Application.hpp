@@ -85,6 +85,7 @@ public:
     std::shared_ptr<Program> mainProgram;
     std::shared_ptr<Program> simpleProgram;
     std::shared_ptr<Program> voxelProgram;
+    std::shared_ptr<Program> voxelAmbientOcclusionProgram;
     
     std::shared_ptr<Model> temporaryModel;
     std::shared_ptr<Model> sphereModel;
@@ -105,6 +106,7 @@ public:
     void initShaders(const std::string& resourceDirectory);
     void initSimpleProgram(const std::string& resourceDirectory);
     void initVoxelProgram(const std::string& resourceDirectory);
+    void initVoxelAmbientOcclusionProgram(const std::string& resourceDirectory);
 
     void initGeom(const std::string& resourceDirectory);
 

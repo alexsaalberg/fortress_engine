@@ -141,6 +141,7 @@ void Application::initShaders(const std::string& resourceDirectory)
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     initSimpleProgram(resourceDirectory);
     initVoxelProgram(resourceDirectory);
+    initVoxelAmbientOcclusionProgram(resourceDirectory);
 }
 
 void Application::initSimpleProgram(const std::string& resourceDirectory) {
@@ -185,6 +186,34 @@ void Application::initVoxelProgram(const std::string& resourceDirectory) {
     
     voxelProgram->addAttribute("vPosition");
 }
+
+void Application::initVoxelAmbientOcclusionProgram(const std::string& resourceDirectory) {
+    voxelAmbientOcclusionProgram = make_shared<Program>();
+    voxelAmbientOcclusionProgram->setVerbose(true);
+    voxelAmbientOcclusionProgram->setShaderNames(resourceDirectory + "/voxel_AOCalc_vert.glsl",
+                                 resourceDirectory + "/voxel_AOCalc_frag.glsl");
+    
+    if (! voxelAmbientOcclusionProgram->init()) {
+        std::cerr << "One or more shaders failed to compile... exiting!" << std::endl;
+        exit(1);
+    }
+    //Transformation Matrices
+    voxelAmbientOcclusionProgram->addUniform("P");
+    voxelAmbientOcclusionProgram->addUniform("V");
+    voxelAmbientOcclusionProgram->addUniform("trans_inv_V");
+    voxelAmbientOcclusionProgram->addUniform("M");
+    //Material constants
+    voxelAmbientOcclusionProgram->addUniform("mAmbientCoefficient");
+    voxelAmbientOcclusionProgram->addUniform("mDiffusionCoefficient");
+    voxelAmbientOcclusionProgram->addUniform("mSpecularCoefficient");
+    voxelAmbientOcclusionProgram->addUniform("mSpecularAlpha");
+    //Lighting
+    voxelAmbientOcclusionProgram->addUniform("eyePosition");
+    voxelAmbientOcclusionProgram->addUniform("directionTowardsLight");
+    
+    voxelAmbientOcclusionProgram->addAttribute("vPosition");
+}
+
 
 void Application::initGeom(const std::string& resourceDirectory) {
     // this is the tiny obj shapes - not to be confused with our shapes
@@ -239,8 +268,8 @@ void Application::render(double t, float alpha) {
     if( !input_system.isControlDownThisStep("key_i") ) {
         // Normal Draw
         render_system.render(t, mainProgram); //Renders models
-        chunk_system.renderAllChunks(t, voxelProgram); //Renders world
-        volume_render_system.render(t, voxelProgram); //Renders non-world volumes
+        chunk_system.renderAllChunks(t, voxelAmbientOcclusionProgram); //Renders world
+        volume_render_system.render(t, voxelAmbientOcclusionProgram); //Renders non-world volumes
     } else {
         // If 'i' is held down, debug draw
         simpleProgram->bind();

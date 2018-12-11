@@ -73,18 +73,22 @@ namespace PolyVoxExtensions {
         glEnableVertexAttribArray(0); // Attrib '0' is the vertex positions
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(typename MeshType::VertexType), (GLvoid*)(offsetof(typename MeshType::VertexType, position))); //take the first 3 floats from every sizeof(decltype(vecVertices)::value_type)
         
+        glEnableVertexAttribArray(1); //We're talking about shader attribute '1'
+        glVertexAttribIPointer(1, 1, GL_UNSIGNED_BYTE, sizeof(typename MeshType::VertexType), (GLvoid*)(offsetof(typename MeshType::VertexType, ambientOcclusion)));
+        
         // Some surface extractors also generate normals, so tell OpenGL how these are laid out. If a surface extractor
         // does not generate normals then nonsense values are written into the buffer here and sghould be ignored by the
         // shader. This is mostly just to simplify this example code - in a real application you will know whether your
         // chosen surface extractor generates normals and can skip uploading them if not.
-        glEnableVertexAttribArray(1); // Attrib '1' is the vertex normals.
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(typename MeshType::VertexType), (GLvoid*)(offsetof(typename MeshType::VertexType, normal)));
+        glEnableVertexAttribArray(2); // Attrib '2' is the vertex normals.
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(typename MeshType::VertexType), (GLvoid*)(offsetof(typename MeshType::VertexType, normal)));
         
         // Finally a surface extractor will probably output additional data. This is highly application dependant. For this example code
         // we're just uploading it as a set of bytes which we can read individually, but real code will want to do something specialised here.
-        glEnableVertexAttribArray(2); //We're talking about shader attribute '2'
+        glEnableVertexAttribArray(3); //We're talking about shader attribute '3'
         GLint size = (std::min)(sizeof(typename MeshType::VertexType::DataType), size_t(4)); // Can't upload more that 4 components (vec4 is GLSL's biggest type)
-        glVertexAttribIPointer(2, size, GL_UNSIGNED_BYTE, sizeof(typename MeshType::VertexType), (GLvoid*)(offsetof(typename MeshType::VertexType, data)));
+        glVertexAttribIPointer(3, size, GL_UNSIGNED_BYTE, sizeof(typename MeshType::VertexType), (GLvoid*)(offsetof(typename MeshType::VertexType, data)));
+        
         
         // We're done uploading and can now unbind.
         glBindVertexArray(0);
