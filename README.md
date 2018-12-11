@@ -1,8 +1,8 @@
 # Fortress Engine
 
-v0.0.1
+v0.0.2
 
-![Screenshot showing overview of features in Fortress Engine](media/screen1.png)
+![Screenshot showing overview of features in Fortress Engine](https://i.imgur.com/dFHIsmw.png)
 
 ## Description
 
